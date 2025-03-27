@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import cn from 'clsx'
-
+export const runtime = 'edge';
 export default async function Page(props: {
   params: Promise<{
     slug: string
