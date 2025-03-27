@@ -6,7 +6,11 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:worker": "npx @opennextjs/cloudflare build",
+    "dev:worker": "wrangler dev --port 8771",
+    "preview:worker": "pnpm run build:worker && pnpm run dev:worker",
+    "deploy": "opennextjs-cloudflare && wrangler deploy"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
@@ -32,8 +36,10 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "cloudflare": "^4.2.0",
     "postcss": "^8.4.47",
     "tailwindcss": "4.0.0-beta.8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.5.0"
   }
 }

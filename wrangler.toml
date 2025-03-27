@@ -1,5 +1,5 @@
 main = ".open-next/worker.js"
-name = "shud.in"
+name = "shud-in"
 
 compatibility_date = "2025-03-27"
 compatibility_flags = ["nodejs_compat"]
