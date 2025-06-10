@@ -1,6 +1,5 @@
 import type { MDXComponents } from 'mdx/types'
 import type { FC } from 'react'
-import { codeToHtml, createCssVariablesTheme } from 'shiki'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -10,7 +9,15 @@ import { InlineMath, BlockMath } from 'react-katex'
 import { Card } from '@/components/tweet-card'
 import { BlockSideTitle } from '@/components/block-sidetitle'
 
-const cssVariablesTheme = createCssVariablesTheme({})
+// Prism.js for syntax highlighting
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-typescript'
+import 'prismjs/components/prism-jsx'
+import 'prismjs/components/prism-tsx'
+import 'prismjs/components/prism-css'
+import 'prismjs/components/prism-json'
+import 'prismjs/components/prism-bash'
 
 export const components: Record<string, FC<any>> = {
   h1: (props) => (
@@ -71,42 +78,42 @@ export const components: Record<string, FC<any>> = {
   pre: (props) => (
     <pre className='mt-7 whitespace-pre md:whitespace-pre-wrap' {...props} />
   ),
-  code: async (props) => {
-    if (typeof props.children === 'string') {
-      const code = await codeToHtml(props.children, {
-        lang: 'jsx',
-        theme: cssVariablesTheme,
-        // theme: 'min-light',
-        // theme: 'snazzy-light',
-        transformers: [
-          {
-            // Since we're using dangerouslySetInnerHTML, the code and pre
-            // tags should be removed.
-            pre: (hast) => {
-              if (hast.children.length !== 1) {
-                throw new Error('<pre>: Expected a single <code> child')
-              }
-              if (hast.children[0].type !== 'element') {
-                throw new Error('<pre>: Expected a <code> child')
-              }
-              return hast.children[0]
-            },
-            postprocess(html) {
-              return html.replace(/^<code>|<\/code>$/g, '')
-            },
-          },
-        ],
-      })
-
-      return (
-        <code
-          className='inline shiki css-variables text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem]'
-          dangerouslySetInnerHTML={{ __html: code }}
-        />
-      )
+  code: (props) => {
+    if (typeof props.children === 'string' && props.className) {
+      // Extract language from className (e.g., "language-javascript")
+      const language = props.className.replace('language-', '')
+      
+      try {
+        const highlighted = Prism.highlight(
+          props.children,
+          Prism.languages[language] || Prism.languages.javascript,
+          language
+        )
+        
+        return (
+          <code
+            className={`inline text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] ${props.className}`}
+            dangerouslySetInnerHTML={{ __html: highlighted }}
+          />
+        )
+      } catch (error) {
+        // Fallback to simple styling if highlighting fails
+        return (
+          <code 
+            className='inline bg-rurikon-50 px-1.5 py-0.5 rounded text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] font-mono text-rurikon-700'
+            {...props} 
+          />
+        )
+      }
     }
 
-    return <code className='inline' {...props} />
+    // For inline code without language
+    return (
+      <code 
+        className='inline bg-rurikon-50 px-1.5 py-0.5 rounded text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] font-mono text-rurikon-700'
+        {...props} 
+      />
+    )
   },
   Card,
   Image,
