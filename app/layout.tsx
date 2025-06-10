@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from 'next'
 
-// @ts-expect-error types are not available yet?
-import { unstable_ViewTransition as ViewTransition } from 'react'
-
 import cn from 'clsx'
 import localFont from 'next/font/local'
 import 'katex/dist/katex.min.css'
 
 import Navbar from '@/components/navbar'
+import { ViewTransitionWrapper } from '@/components/view-transition-wrapper'
 import './globals.css'
 
 const sans = localFont({
@@ -64,11 +62,11 @@ export default function RootLayout({
           <Navbar />
           <main className='relative flex-1 max-w-2xl [contain:inline-size]'>
             <div className='absolute w-full h-px opacity-50 bg-rurikon-border right-0 mobile:right-auto mobile:left-0 mobile:w-px mobile:h-full mobile:opacity-100' />
-            <ViewTransition name='crossfade'>
+            <ViewTransitionWrapper name='crossfade'>
               <article className='pl-0 pt-6 mobile:pt-0 mobile:pl-6 sm:pl-10 md:pl-14'>
                 {children}
               </article>
-            </ViewTransition>
+            </ViewTransitionWrapper>
           </main>
         </div>
       </body>
