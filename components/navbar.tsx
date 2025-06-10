@@ -36,7 +36,7 @@ export default function Navbar() {
         <Item href='/'>about</Item>
         <Item href='/thoughts'>thoughts</Item>
         {/* <Item href='/visuals'>visuals</Item> */}
-        <Item href='/projects'>projects</Item>
+        {/* <Item href='/projects'>projects</Item> */}
         {/* <Item href='/guestbook'>Guestbook</Item> */}
       </ul>
     </nav>
