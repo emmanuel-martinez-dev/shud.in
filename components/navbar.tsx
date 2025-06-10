@@ -33,10 +33,10 @@ export default function Navbar() {
   return (
     <nav className='mobile:mr-6 sm:mr-10 md:mr-14 w-full mobile:w-16'>
       <ul className='lowercase text-right mobile:sticky top-6 sm:top-10 md:top-14 mb-6 mobile:mb-0 flex gap-2 justify-end mobile:block'>
-        <Item href='/'>perfil</Item>
-        {/* <Item href='/thoughts'>Thoughts</Item> */}
-        <Item href='/visuals'>visuales</Item>
-        {/* <Item href='/projects'>proyectos</Item> */}
+        <Item href='/'>about</Item>
+        <Item href='/thoughts'>thoughts</Item>
+        {/* <Item href='/visuals'>visuals</Item> */}
+        <Item href='/projects'>projects</Item>
         {/* <Item href='/guestbook'>Guestbook</Item> */}
       </ul>
     </nav>

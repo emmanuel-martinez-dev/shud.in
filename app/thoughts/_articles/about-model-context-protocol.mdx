@@ -1,0 +1,197 @@
+export const metadata = {
+  title: 'Adding MCP Tools to an Agent',
+  date: '2025.06.10'
+}
+
+# How to Add MCP Tools to a Mastra Agent
+
+The Model Context Protocol (MCP) provides a standardized way for AI models to discover and interact with external tools and resources. You can connect your Mastra agent to MCP servers to use tools provided by third parties.
+
+## Installation
+
+First, install the Mastra MCP package:
+
+```bash
+npm install @mastra/mcp@latest
+```
+
+Or with other package managers:
+
+```bash
+pnpm add @mastra/mcp@latest
+yarn add @mastra/mcp@latest
+bun add @mastra/mcp@latest
+```
+
+## MCP Client Configuration
+
+Configure the `MCPClient` to connect to your MCP servers:
+
+```typescript
+// src/mastra/mcp.ts
+import { MCPClient } from "@mastra/mcp";
+
+export const mcp = new MCPClient({
+  servers: {
+    filesystem: {
+      command: "npx",
+      args: [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/username/Downloads",
+      ],
+    },
+  },
+});
+```
+
+## Creating an Agent with MCP Tools
+
+Once you have configured the MCP client, you can connect your agent to the server tools:
+
+```typescript
+// src/mastra/agents/mcpAgent.ts
+import { Agent } from "@mastra/core/agent";
+import { openai } from "@ai-sdk/openai";
+import { mcp } from "../mcp";
+
+// Create an agent and add tools from the MCP client
+const agent = new Agent({
+  name: "Agent with MCP Tools",
+  instructions: "You can use tools from connected MCP servers.",
+  model: openai("gpt-4o-mini"),
+  tools: await mcp.getTools(),
+});
+```
+
+## Accessing MCP Resources
+
+In addition to tools, MCP servers can also expose resources - data or content that can be retrieved and used in your application:
+
+```typescript
+// src/mastra/resources.ts
+import { mcp } from "./mcp";
+
+// Get resources from all connected MCP servers
+const resources = await mcp.getResources();
+
+// Access resources from a specific server
+if (resources.filesystem) {
+  const resource = resources.filesystem.find(
+    (r) => r.uri === "filesystem://Downloads",
+  );
+  console.log(`Resource: ${resource?.name}`);
+}
+```
+
+## Working with MCP Prompts
+
+MCP servers can also expose prompts, which represent structured message templates or conversational context for agents.
+
+### Listing Prompts
+
+```typescript
+// src/mastra/prompts.ts
+import { mcp } from "./mcp";
+
+// Get prompts from all connected MCP servers
+const prompts = await mcp.prompts.list();
+
+// Access prompts from a specific server
+if (prompts.weather) {
+  const prompt = prompts.weather.find(
+    (p) => p.name === "current"
+  );
+  console.log(`Prompt: ${prompt?.name}`);
+}
+```
+
+### Retrieving a Prompt and Its Messages
+
+```typescript
+const { prompt, messages } = await mcp.prompts.get({ 
+  serverName: "weather", 
+  name: "current" 
+});
+
+console.log(prompt);    // { name: "current", version: "v1", ... }
+console.log(messages);  // [ { role: "assistant", content: { type: "text", text: "..." } }, ... ]
+```
+
+## Exposing Agents as Tools via MCPServer
+
+You can also expose your Mastra Agents as tools to any MCP-compatible client using Mastra's `MCPServer`:
+
+```typescript
+// src/mastra/mcp.ts
+import { Agent } from "@mastra/core/agent";
+import { MCPServer } from "@mastra/mcp";
+import { openai } from "@ai-sdk/openai";
+import { weatherInfo } from "../tools/weatherInfo";
+import { generalHelper } from "../agents/generalHelper";
+
+const server = new MCPServer({
+  name: "My Custom Server with Agent-Tool",
+  version: "1.0.0",
+  tools: {
+    weatherInfo,
+  },
+  agents: { generalHelper }, // Exposes 'ask_generalHelper' tool
+});
+```
+
+## Complete Example
+
+Here's a complete example that combines traditional tools with MCP tools:
+
+```typescript
+// src/mastra/agents/hybridAgent.ts
+import { Agent } from "@mastra/core/agent";
+import { openai } from "@ai-sdk/openai";
+import { createTool } from "@mastra/core/tools";
+import { z } from "zod";
+import { mcp } from "../mcp";
+
+// Traditional tool
+const weatherInfo = createTool({
+  id: "Get Weather Information",
+  inputSchema: z.object({
+    city: z.string(),
+  }),
+  description: `Fetches the current weather information for a given city`,
+  execute: async ({ context: { city } }) => {
+    console.log("Using tool to fetch weather information for", city);
+    return { temperature: 20, conditions: "Sunny" };
+  },
+});
+
+// Hybrid agent with traditional and MCP tools
+export const hybridAgent = new Agent({
+  name: "Hybrid Agent",
+  instructions: `
+    You are a helpful assistant that can:
+    1. Provide weather information using local tools
+    2. Access filesystem using MCP tools
+    3. Perform complex tasks combining both types of tools
+  `,
+  model: openai("gpt-4o-mini"),
+  tools: {
+    weatherInfo,
+    ...(await mcp.getTools()),
+  },
+});
+```
+
+## Important Considerations
+
+1. **Agent Description**: For an agent to be successfully converted into a tool by `MCPServer`, its `description` property must be set to a non-empty string.
+
+2. **Error Handling**: The `getResources()` method handles errors gracefully - if a server fails or doesn't support resources, it will be omitted from the results.
+
+3. **MCP Registry**: Because there are so many MCP server registries to choose from, Mastra has created an [MCP Registry Registry](https://mastra.ai/en/docs/tools-mcp/mcp-overview) to help you find MCP servers.
+
+## References
+
+- [Official Mastra MCP Documentation](https://mastra.ai/en/docs/agents/using-tools-and-mcp)
+- [MCPClient Reference](https://mastra.ai/en/docs/reference/tools)
+- [MCPServer Reference](https://mastra.ai/en/docs/reference/tools)
