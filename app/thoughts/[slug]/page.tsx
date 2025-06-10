@@ -1,5 +1,5 @@
 import cn from 'clsx'
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 export default async function Page(props: {
   params: Promise<{
