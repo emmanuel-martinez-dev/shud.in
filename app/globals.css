@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@import 'prismjs/themes/prism.css';
 @source "../mdx-components.tsx";
 
 @layer utilities {

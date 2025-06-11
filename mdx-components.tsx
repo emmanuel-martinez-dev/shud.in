@@ -9,16 +9,6 @@ import { InlineMath, BlockMath } from 'react-katex'
 import { Card } from '@/components/tweet-card'
 import { BlockSideTitle } from '@/components/block-sidetitle'
 
-// Prism.js for syntax highlighting
-import Prism from 'prismjs'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-typescript'
-import 'prismjs/components/prism-jsx'
-import 'prismjs/components/prism-tsx'
-import 'prismjs/components/prism-css'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-bash'
-
 export const components: Record<string, FC<any>> = {
   h1: (props) => (
     <h1
@@ -76,38 +66,10 @@ export const components: Record<string, FC<any>> = {
     />
   ),
   pre: (props) => (
-    <pre className='mt-7 whitespace-pre md:whitespace-pre-wrap' {...props} />
+    <pre className='mt-7 whitespace-pre md:whitespace-pre-wrap bg-rurikon-50 p-4 rounded overflow-x-auto' {...props} />
   ),
   code: (props) => {
-    if (typeof props.children === 'string' && props.className) {
-      // Extract language from className (e.g., "language-javascript")
-      const language = props.className.replace('language-', '')
-      
-      try {
-        const highlighted = Prism.highlight(
-          props.children,
-          Prism.languages[language] || Prism.languages.javascript,
-          language
-        )
-        
-        return (
-          <code
-            className={`inline text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] ${props.className}`}
-            dangerouslySetInnerHTML={{ __html: highlighted }}
-          />
-        )
-      } catch (error) {
-        // Fallback to simple styling if highlighting fails
-        return (
-          <code 
-            className='inline bg-rurikon-50 px-1.5 py-0.5 rounded text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] font-mono text-rurikon-700'
-            {...props} 
-          />
-        )
-      }
-    }
-
-    // For inline code without language
+    // Simple code component without any external dependencies
     return (
       <code 
         className='inline bg-rurikon-50 px-1.5 py-0.5 rounded text-[0.805rem] sm:text-[13.8px] md:text-[0.92rem] font-mono text-rurikon-700'
